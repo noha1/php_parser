@@ -16,10 +16,9 @@ class Parser
 	protected $delimiter = ".";
 	public $jsonArray;
 
-
-	public function __construct(string $rawJson, $delimiter = ".") {
-
-		$this->jsonArray = $this->getJsonArray($rawJson);
+	// load option specifies if it is passed string or a loaded file.
+	public function __construct(string $rawJson, $load=false, $delimiter = ".") {
+		$this->jsonArray = ($load === true ) ? $this->load($rawJson) :  $this->getJsonArray($rawJson);
 		$this->delimiter = $delimiter ?: ".";
 
 	}
@@ -76,6 +75,7 @@ class Parser
 			// no mutation
 			$array = $array[$segment];
 		}
+
         // check if not found
 		if (is_null($array)){
 			// throw new Exception('path is not correct.');
@@ -90,7 +90,7 @@ class Parser
 
 	// load external json files usage: ('config/db.json');
 	public function load ($filename){
-		$filecontent = (file_exists($filename))? json_decode(file_get_contents($filename), true) : null; 
+		$filecontent = (file_exists($filename)) ? json_decode(file_get_contents($filename), true) : null; 
 		return $filecontent;
 	}
 
@@ -121,14 +121,14 @@ class Parser
                 $needle = $key;
 				
                 foreach ($this->recursiveFind($array = $this->jsonArray, $needle) as $value) {
-                    $recursiveFindArray = array($value[0][$needle] => $value[2]);
+                    $recursiveFindArray = $value;
 					}
 					return $recursiveFindArray;
                 }
         }
         // option: nested and dots notation 
         else{
-            $this->getSegment($key);
+           return $this->getSegment($key);
         }
       
     }
@@ -161,16 +161,5 @@ $json = '{
     }
   }
 }';
-// usage
-$foo = new Parser($json);
-$array = json_decode($json, true);
-// $data = $foo->getSegment('mum.host');
-
-
-// $output = $foo->recursiveFind($array, 'port');
-// var_dump($output);
-
-$res = $foo->get('cache');
-var_dump($res);
 
 ?>
