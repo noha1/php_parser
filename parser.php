@@ -25,7 +25,7 @@ class Parser
 
 
 	public function getJsonArray(string $rawJson) {
-		if ($this->json_validate($rawJson) === true) {
+		if ($this->validate($rawJson) === true) {
 			return json_decode($rawJson, true);
 		}
 		print "invalid json file";
@@ -33,7 +33,7 @@ class Parser
 	}
 
 
-	public function json_validate(string $raw_json): bool {
+	public function validate(string $raw_json): bool {
 		return (json_decode($raw_json, true) == NULL) ? false : true;
 
 	}
@@ -75,7 +75,7 @@ class Parser
 			// no mutation
 			$array = $array[$segment];
 		}
-
+		
         // check if not found
 		if (is_null($array)){
 			// throw new Exception('path is not correct.');
@@ -144,22 +144,5 @@ class Parser
 	}
 
 }
-
-
-$json = '{
-  "environment": "production",
-  "database": {
-    "host": "mysql",
-    "port": 3306,
-    "username": "divido",
-    "password": "divido"
-  },
-  "cache": {
-    "mum": {
-      "host": "redis",
-      "port": 6379
-    }
-  }
-}';
 
 ?>
