@@ -39,6 +39,7 @@ class Parser
 
 	}
 
+	// used to look up/find node if deeply nested and without dot notation
 	private function recursiveFind(array $haystack, $needle) {
 		$iterator = new RecursiveArrayIterator($haystack);
 		$recursive = new RecursiveIteratorIterator(
@@ -61,19 +62,21 @@ class Parser
 		}
 	}
 
-
-	private function getNestedArr(string $key, $default = null) {
+	
+	// extract the node value , using the dot delimiter
+	private function getSegment(string $key, $default = null) {
         $array = $this->jsonArray;
 		// check type
 		if (!is_string($key)) {
 			return $default;
 		}
 
+		// extract the node value , using the dot delimiter
 		foreach (explode($this->delimiter, $key) as $segment) {
 			// no mutation
 			$array = $array[$segment];
 		}
-        // check 
+        // check if not found
 		if (is_null($array)){
 			// throw new Exception('path is not correct.');
 			print ($key.", path not found!");
@@ -85,8 +88,14 @@ class Parser
 	
 	}
 
+	// load external json files usage: ('config/db.json');
+	public function load ($filename){
+		$filecontent = (file_exists($filename))? json_decode(file_get_contents($filename), true) : null; 
+		return $filecontent;
+	}
 
-    // convert uploaded file/s into arrays
+
+    // convert uploaded file/s into jsonarrays
     public function merge($files = []){
         $data = []; 
         foreach ($files as $f) 
@@ -100,27 +109,26 @@ class Parser
     public function get(string $key, $default = null){
         $array= $this->jsonArray; 
       
-        //simple one node no dots
+        //case  one  segment , simple node no dots
        if (strpos($key, $this->delimiter) === false)
-        {   //top level
+        {   //top level key
             if($this->exists($array, $key)){
                 return $this->jsonArray[$key] ?? $default;
             }
             else{
-                 // not top level and fall back
-                 //go piano b meaning it is nested but the tree passed is not right
+                 // not top level key, dbl check if deeply nested.
+                 // used to find even wrong paths.
                 $needle = $key;
 				
                 foreach ($this->recursiveFind($array = $this->jsonArray, $needle) as $value) {
                     $recursiveFindArray = array($value[0][$needle] => $value[2]);
 					}
-					//improve this array to do 
 					return $recursiveFindArray;
                 }
         }
-        // nested and dots correctly
+        // option: nested and dots notation 
         else{
-            $this->getNestedArr($key);
+            $this->getSegment($key);
         }
       
     }
@@ -136,4 +144,33 @@ class Parser
 	}
 
 }
+
+
+$json = '{
+  "environment": "production",
+  "database": {
+    "host": "mysql",
+    "port": 3306,
+    "username": "divido",
+    "password": "divido"
+  },
+  "cache": {
+    "mum": {
+      "host": "redis",
+      "port": 6379
+    }
+  }
+}';
+// usage
+$foo = new Parser($json);
+$array = json_decode($json, true);
+// $data = $foo->getSegment('mum.host');
+
+
+// $output = $foo->recursiveFind($array, 'port');
+// var_dump($output);
+
+$res = $foo->get('cache');
+var_dump($res);
+
 ?>
