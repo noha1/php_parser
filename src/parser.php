@@ -3,7 +3,7 @@
 * PARSER - PHP json parser with dot notation
 *
 * @author  Noha Hassaan
-* @link    https://github.com/
+* @link    https://github.com/noha1
 *
 * It must be possible to specify multiple configuration files to be loaded, and have later files
 * override settings in earlier ones.
