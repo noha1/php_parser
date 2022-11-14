@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase as FrameworkTestCase;
-require_once "./src/parser.php";
+require_once "./src/parser.php";  #use gave an error.
 use ReflectionClass;
 /**
 * Class ParserTest.
@@ -83,10 +83,12 @@ final class ParserTest extends FrameworkTestCase
 
 	public function testLoad(): void
 	{
+		fwrite(STDOUT, __METHOD__ . "\n");
 		$invalidfilepath = 'hoax.json';
 		$expected = null;
-		fwrite(STDOUT, __METHOD__ . "\n");
-		$this->assertEquals($expected, $this->parser->load($invalidfilepath));
+		fwrite(STDOUT, __METHOD__ . ":: Hoax \n");
+		$this->assertEquals($expected, $this->parser->load($invalidfilepath), 'checks invalid file path');
+		$this->assertArrayHasKey('product', $this->parser->load('src/tests/fixtures/data.yaml'), 'check yaml valid file');
 
 	}
 
@@ -99,3 +101,4 @@ final class ParserTest extends FrameworkTestCase
 
 	}
 }
+
