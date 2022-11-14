@@ -1,39 +1,50 @@
 # PHP PARSER
 
-## Usage
+### Usage
 
-## the Parser accepts raw json string or file.
+The parser is a utility to retrieve parts of the configuration by a dot-separated path; The Parser accepts raw json string or file.
 
-## the loading file process is seemless.
+ the loading file process is seemless.
 
-## example:
+ example:
 
-## loading file, setting the load flag to true
+- loading valid JSON file, setting the load flag to true
 
+```
 $foo = new Parser('tests/ParserTest.json', True);
+```
+ or loading a valid JSON string
 
-## or
+```$foo = new Parser('some raw json string');```
 
-$foo = new Parser('some raw json string');
 
-## To query the json file you can check a certain node or if you know the path you can use dot notation.
 
-### example:
+### To query the json file you can check a certain node or if you know the path you can use dot notation.
 
-$res = $foo->get('database.host');
-var_dump($res);
+ dot notation example:
+```
+$result = $foo->get('database.host');
+print_r($result);
+```
 
-## overider the configuration file is not a feature of the parser.
 
-## This can be done from the configuration set up by setting the env. variable from the php cli.
+## Tests and Debugging
+phpunit tests were used, to test the parser you can use the following line in your terminal
+``` phpunit --colors=always  -v   --debug    src/tests/ParserTest.php ```
 
-## which is considered to the easiest and most secure way.
 
-##
+Note: overiding the configuration file is not a feature of the parser.
 
+This can be done from the configuration set up by setting the env. variable from the php cli.
+
+ which is considered to the easiest and most secure way.
+
+
+```
 export MY_VENV_AR=value
 php script.php
 
 script.php
 
 echo getenv('MY_VAR').PHP_EOL;
+```
