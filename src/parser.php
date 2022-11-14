@@ -7,19 +7,22 @@
 *
 * It must be possible to specify multiple configuration files to be loaded, and have later files
 * override settings in earlier ones.
+* expected files are "json","xml", "yaml"
 */
 
 class Parser
 {
 	/** @var string **/
-	protected $delimiter;
+	protected string $delimiter;
+	public array $allowFileTypes;
 	public $jsonArray;
 
 	// load option specifies if it is passed string or a loaded file.
 
 	public function __construct(string $rawJson, $load = false, $delimiter = ".") {
-		$this->jsonArray = ($load === true) ? $this->load($rawJson) : $this->getJsonArray($rawJson);
 		$this->delimiter = $delimiter ?: ".";
+		$this->allowFileTypes = array('json', 'xml' , 'yaml');
+		$this->jsonArray = ($load === true) ? $this->load($rawJson) : $this->getJsonArray($rawJson);
 
 	}
 
@@ -88,10 +91,22 @@ class Parser
 
 	}
 
-	// load external json files usage: ('config/db.json');
+	// load external json files
 	public function load ($filename) {
-		$filecontent = (file_exists($filename)) ? json_decode(file_get_contents($filename), true) : null;
-		return $filecontent;
+		//check file type , converto to json and then decode it 
+		$filext= pathinfo($filename, PATHINFO_EXTENSION);
+		if(!file_exists($filename) or !in_array($filext, $this->allowFileTypes)){	
+			print "Error encountered";
+			return null;
+		 } 
+		
+		if  ($filext ==='json'){
+			return json_decode(file_get_contents($filename), true);
+		}
+		else{
+			$data = $this->jsonify($filename);
+			return $this->getJsonArray($data);
+		}
 	}
 
 
@@ -131,10 +146,30 @@ class Parser
 
 	}
 
-
+	private function jsonify($file){
+		$filetype = pathinfo($file, PATHINFO_EXTENSION);
+		// txt files , xml and yaml
+		$json='';
+		switch ($filetype) {
+			case 'txt':
+				$json = json_encode( explode("\r\n",file_get_contents($file)) );
+				break;
+			case 'yaml':
+				$json = json_encode(yaml_parse_file($file));
+				break;
+			case 'xml':
+				$xml_string = file_get_contents($file);
+				$xml = simplexml_load_string($xml_string);
+				$json = json_encode($xml);
+				break;
+		}
+		
+		return $json;
+	}
+	
 	/**
 	* util Check if a given key or keys exists
-	* @param  array<TKey>|int|string  $keys
+	* @param  array<TKey>4|int|string  $keys
 	*/
 	private function exists($array, $key) {
 		reset($array);
